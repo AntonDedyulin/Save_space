@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Последняя тень — повторные испытания 0.4</title>
+<style>
+:root{color-scheme:dark;--bg:#101923;--panel:#1b2a3a;--panel2:#24384d;--text:#f1f5f9;--muted:#b6c4d2;--accent:#8ce0cc;--line:#3b5269;--bad:#ff9c94;--good:#9ce6b1}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#0b121b,#172a3c);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1050px;margin:auto;padding:20px 14px 44px}h1{font-size:clamp(27px,6vw,40px);line-height:1.1;margin:8px 0}h2{font-size:21px;margin:0 0 10px}.muted{color:var(--muted);font-size:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}.tabs,.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:15px 0}.tab,button,input{font:inherit}.tab,button{border:1px solid var(--line);border-radius:11px;padding:10px 13px;background:var(--panel2);color:var(--text);cursor:pointer}.tab.active,.primary{background:var(--accent);color:#10231f;border-color:var(--accent);font-weight:700}input{background:#111e2b;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;width:100px}.hidden{display:none!important}.good{color:var(--good)}.bad{color:var(--bad)}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:7px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}.run{border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}.run summary{padding:11px;background:#142231;cursor:pointer;font-weight:650}.runbody{padding:10px}.pill{display:inline-block;padding:2px 8px;border-radius:20px;background:#263c50;font-size:12px;margin-left:5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metric{background:#101c28;border:1px solid var(--line);border-radius:12px;padding:12px}.metric b{display:block;font-size:22px}.notice{padding:11px;background:#302d23;border-left:3px solid #f0ca70;border-radius:7px;color:#f7e9c5}.footer{font-size:12px;color:var(--muted)}@media(max-width:560px){.grid{grid-template-columns:1fr}table{font-size:12px}td,th{padding:6px 4px}}
+</style></head><body><main>
+<div class="muted">ИСПЫТАТЕЛЬНЫЙ СТЕНД · ВЕРСИЯ 0.4</div><h1>«Последняя тень» — повторные испытания</h1>
+<p class="muted">120 прогонов: 3 типа грунта × 4 стратегии × 10 наборов бросков. Правила и стоимость действий не меняются относительно версии 0.3. Цель — отделить устойчивые эффекты стратегии от случайных результатов кубика.</p>
+<nav class="tabs"><button class="tab active" data-tab="tests">Результаты</button><button class="tab" data-tab="method">Методика</button></nav>
+<section id="tests">
+<div class="panel"><h2>Параметры серии</h2><div class="row"><label for="reps">Наборов бросков на каждый грунт:</label><input id="reps" type="number" min="10" max="100" value="10"><label for="seed">Начальное число (seed):</label><input id="seed" type="number" value="20261113"></div><div class="row"><button class="primary" id="run">Запустить серию</button><button id="csv" disabled>Скачать подробный CSV</button></div><p class="muted" id="summary">Серия ещё не запускалась. При 10 наборах будет 120 прогонов.</p></div>
+<div class="panel"><h2>Сводка по стратегиям и местности</h2><div id="aggregate" class="muted">Результаты появятся после запуска.</div></div>
+<div class="panel"><h2>Сравнение стратегий в целом</h2><div id="overall" class="muted">Результаты появятся после запуска.</div></div>
+<div class="panel"><h2>Подробные журналы</h2><p class="muted">Каждый прогон можно раскрыть. Внутри — броски, действия, время и последствия.</p><div id="journals" class="muted">Журналы появятся после запуска.</div></div>
+</section>
+<section id="method" class="hidden">
+<div class="panel"><h2>Как устроена серия</h2>
+<ol><li>В каждом повторе генерируется отдельный набор контрольных бросков для каждого типа грунта.</li><li>Все четыре стратегии на одном типе грунта и в одном повторе получают одинаковые значения бросков движения, поиска и освобождения. Это парное сравнение в одинаковой случайной обстановке.</li><li>Для каждого типа грунта используется отдельная последовательность случайных чисел. Начальное число (seed) позволяет повторить точно такую же серию.</li><li>Броски поиска берутся из общей последовательности. Если стратегия достигла порога автоматического обнаружения раньше, лишние броски не используются.</li><li>Стоимость действий и пороги риска не изменяются относительно версии 0.3.</li></ol>
+<div class="notice"><b>Ограничение:</b> это повторные расчёты четырёх заранее заданных стратегий, а не партии с человеком. Результат зависит от принятых правил автоматической стратегии «Разведка и адаптация»: быстро на твёрдом грунте, осторожно на рыхлом реголите и в пыли. Частота успехов относится только к этой модели, а не к реальной технике или физике лунной операции.</div>
+<h2 style="margin-top:16px">Что измеряем</h2><ul><li>Среднее время и диапазон времени.</li><li>Доля полных успехов.</li><li>Частота повреждения ровера.</li><li>Частота нагрузки на багги.</li><li>Разница между стратегиями при одинаковых бросках.</li></ul>
+</div>
+</section><p class="footer">Расчёты выполняются локально в браузере. Файл CSV содержит сводку каждого прогона и все шаги журналов.</p>
+</main><script>
+(()=>{
+'use strict';
+const terrains={easy:{name:'Твёрдый грунт',risk:0,delay:0},loose:{name:'Рыхлый реголит',risk:2,delay:1},dust:{name:'Глубокая пыль',risk:3,delay:2}};
+const strategies=[
+{id:'A',name:'Спешка',scout:false,move:'fast',free:'fast'},
+{id:'B',name:'Осторожность',scout:false,move:'cautious',free:'cautious'},
+{id:'C',name:'Разведка и адаптация',scout:true,move:'adaptive',free:'cautious'},
+{id:'D',name:'Разведка и риск',scout:true,move:'fast',free:'fast'}];
+let allRuns=[];
+function rng(seed){let s=seed>>>0;return ()=>{s=(s+0x6D2B79F5)|0;let t=Math.imul(s^(s>>>15),1|s);t^=t+Math.imul(t^(t>>>7),61|t);return ((t^(t>>>14))>>>0)/4294967296;};}
+function rollSet(seed){const r=rng(seed);return {move:1+Math.floor(r()*6),search:Array.from({length:12},()=>1+Math.floor(r()*6)),free:1+Math.floor(r()*6)};}
+function simulate(tkey,st,rolls,rep){
+ const ter=terrains[tkey],log=[];let time=0,load=false,damaged=false,sample=false,rover=false,searchN=0;
+ const add=(action,cost,result)=>{time+=cost;log.push({n:log.length+1,action,cost,time,result});};
+ add('Подъезд к риллу',1,'Багги прибыл к участку; тип грунта неизвестен.');
+ if(st.scout)add('Разведка',1,'Обнаружен тип грунта: '+ter.name+'.');
+ const move=st.move==='adaptive'?(tkey==='easy'?'fast':'cautious'):st.move;
+ if(move==='fast'){
+  add('Быстрое движение',1,'Выбран быстрый режим.');
+  if(ter.risk>0){const roll=rolls.move;if(roll<=ter.risk){load=true;add('Задержка на грунте',ter.delay,'Бросок '+roll+' ≤ порога риска '+ter.risk+'. Возникла нагрузка.');}else log[log.length-1].result+=' Бросок '+roll+': задержки нет.';}
+  else log[log.length-1].result+=' Твёрдый грунт: задержки нет.';
+ }else add('Осторожное движение',2,'Участок пройден без дополнительного риска от грунта.');
+ let found=false;
+ while(!found&&searchN<12){searchN++;const roll=rolls.search[searchN-1];time+=1;const auto=time>=6;found=auto||roll>=4;log.push({n:log.length+1,action:'Поиск ровера №'+searchN,cost:1,time,result:found?(auto?'Ровер обнаружен автоматически: достигнут порог 6 единиц времени.':'Ровер найден. Выпало '+roll+'.'):'Неудача. Выпало '+roll+'; поиск повторяется.'});}
+ if(st.free==='fast'){const roll=rolls.free;time+=1;damaged=roll<=2;log.push({n:log.length+1,action:'Быстрое освобождение ровера',cost:1,time,result:'Бросок '+roll+'. '+(damaged?'Ровер повреждён.':'Повреждения нет.')});}
+ else add('Осторожное освобождение ровера',2,'Ровер освобождён без дополнительного риска повреждения.');
+ add('Закрепление образца в морозильнике',1,'Образец помещён в морозильник и сохранён.');sample=true;
+ const rc=2+(load?1:0);time+=rc;rover=true;log.push({n:log.length+1,action:'Возвращение на базу',cost:rc,time,result:'Ровер доставлен на базу. '+(load?'Добавлена единица времени за нагрузку.':'Нагрузки не было.')});
+ return {repeat:rep+1,terrain:ter.name,strategy:st.name,time:time*10,sample:sample?'Сохранён':'Потерян',rover:damaged?'Повреждён':'Исправен',load:load?'Да':'Нет',outcome:damaged?'Спасение с повреждением':'Полный успех',rolls,log};
+}
+function pct(n,d){return d?(100*n/d).toFixed(1)+'%':'—';}
+function run(){
+ const reps=Math.max(10,Math.min(100,Number(document.getElementById('reps').value)||10));document.getElementById('reps').value=reps;
+ const base=Number(document.getElementById('seed').value)||20261113;allRuns=[];
+ Object.keys(terrains).forEach((tk,ti)=>{for(let rep=0;rep<reps;rep++){const rolls=rollSet((base+ti*100003+rep*7919)>>>0);strategies.forEach(st=>allRuns.push(simulate(tk,st,rolls,rep)));}});
+ const groups=[];Object.keys(terrains).forEach(tk=>strategies.forEach(st=>{const a=allRuns.filter(x=>x.terrain===terrains[tk].name&&x.strategy===st.name);const avg=a.reduce((s,x)=>s+x.time,0)/a.length;const success=a.filter(x=>x.outcome==='Полный успех').length;const damage=a.filter(x=>x.rover==='Повреждён').length;const loads=a.filter(x=>x.load==='Да').length;const min=Math.min(...a.map(x=>x.time)),max=Math.max(...a.map(x=>x.time));groups.push({terrain:terrains[tk].name,strategy:st.name,n:a.length,avg,success,damage,loads,min,max});}));
+ document.getElementById('aggregate').innerHTML='<div class="scroll"><table><thead><tr><th>Местность</th><th>Стратегия</th><th>Среднее время</th><th>Полный успех</th><th>Повреждение</th><th>Нагрузка</th><th>Диапазон времени</th></tr></thead><tbody>'+groups.map(g=>`<tr><td>${g.terrain}</td><td>${g.strategy}</td><td>${g.avg.toFixed(1)} мин</td><td>${pct(g.success,g.n)}</td><td>${pct(g.damage,g.n)}</td><td>${pct(g.loads,g.n)}</td><td>${g.min}–${g.max} мин</td></tr>`).join('')+'</tbody></table></div>';
+ const overall=strategies.map(st=>{const a=allRuns.filter(x=>x.strategy===st.name);return {name:st.name,n:a.length,avg:a.reduce((s,x)=>s+x.time,0)/a.length,success:a.filter(x=>x.outcome==='Полный успех').length,damage:a.filter(x=>x.rover==='Повреждён').length,loads:a.filter(x=>x.load==='Да').length};});
+ document.getElementById('overall').innerHTML='<div class="scroll"><table><thead><tr><th>Стратегия</th><th>Прогонов</th><th>Среднее время</th><th>Полный успех</th><th>Повреждение</th><th>Нагрузка</th></tr></thead><tbody>'+overall.map(g=>`<tr><td>${g.name}</td><td>${g.n}</td><td>${g.avg.toFixed(1)} мин</td><td>${pct(g.success,g.n)}</td><td>${pct(g.damage,g.n)}</td><td>${pct(g.loads,g.n)}</td></tr>`).join('')+'</tbody></table></div>';
+ document.getElementById('journals').innerHTML=allRuns.map((r,i)=>`<details class="run"><summary>${i+1}. Повтор ${r.repeat} · ${r.terrain} · ${r.strategy} <span class="pill">${r.time} мин</span></summary><div class="runbody"><p class="muted">Броски этого набора: движение ${r.rolls.move}; поиск ${r.rolls.search.join(', ')}; освобождение ${r.rolls.free}.</p><div class="scroll"><table><thead><tr><th>№</th><th>Действие</th><th>Цена</th><th>Накопительно</th><th>Результат</th></tr></thead><tbody>${r.log.map(x=>`<tr><td>${x.n}</td><td>${x.action}</td><td>${x.cost*10} мин</td><td>${x.time*10} мин</td><td>${x.result}</td></tr>`).join('')}</tbody></table></div><p><b>Итог:</b> ${r.outcome}; образец — ${r.sample}; ровер — ${r.rover}; нагрузка — ${r.load}.</p></div></details>`).join('');
+ document.getElementById('summary').textContent=`Завершено ${allRuns.length} прогонов (${reps} наборов бросков × 3 местности × 4 стратегии). Seed: ${base}. Наборы бросков одинаковы для четырёх стратегий внутри каждого повтора и типа грунта.`;
+ document.getElementById('csv').disabled=false;
+}
+function download(){
+ if(!allRuns.length)return;
+ const rows=[['Прогон','Повтор','Местность','Стратегия','Бросок движения','Последовательность поиска','Бросок освобождения','№ действия','Действие','Стоимость, мин','Время накопительно, мин','Результат действия','Итог','Образец','Ровер','Нагрузка']];
+ allRuns.forEach((r,i)=>r.log.forEach(x=>rows.push([i+1,r.repeat,r.terrain,r.strategy,r.rolls.move,r.rolls.search.join(','),r.rolls.free,x.n,x.action,x.cost*10,x.time*10,x.result,r.outcome,r.sample,r.rover,r.load])));
+ const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='poslednyaya_ten_povtornye_progony.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+document.getElementById('run').addEventListener('click',run);document.getElementById('csv').addEventListener('click',download);
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('tests').classList.toggle('hidden',b.dataset.tab!=='tests');document.getElementById('method').classList.toggle('hidden',b.dataset.tab!=='method');}));
+})();
+</script></body></html>
